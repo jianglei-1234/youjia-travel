@@ -1,0 +1,68 @@
+<!-- 行程详情页 WXML -->
+<view class="detail-page">
+
+  <!-- 顶部 Hero 区域 -->
+  <view class="hero" style="background:linear-gradient(135deg,{{colorBar}},{{colorBg}});">
+    <view class="hero-icon">📍</view>
+    <text class="hero-location">{{trip.location}}</text>
+    <view class="hero-meta">
+      <text class="hero-date">📅 {{trip.date}}</text>
+      <text wx:if="{{trip.time}}" class="hero-time">⏰ {{trip.time}}</text>
+    </view>
+    <view class="hero-badges">
+      <view wx:if="{{trip.checked}}" class="badge badge-checked">✅ 已打卡</view>
+      <view wx:else class="badge badge-pending">⏳ 待出发</view>
+      <view wx:if="{{trip.isImportant}}" class="badge badge-important">⭐ 重要</view>
+    </view>
+  </view>
+
+  <scroll-view class="detail-body" scroll-y>
+
+    <!-- 打卡时间 -->
+    <view wx:if="{{checkedAtFmt}}" class="detail-section">
+      <view class="section-title">✅ 打卡记录</view>
+      <view class="section-card">
+        <text class="detail-value">打卡时间：{{checkedAtFmt}}</text>
+        <text wx:if="{{trip.gpsLat}}" class="detail-value gps-text">📍 GPS坐标：{{trip.gpsLat.toFixed(4)}}, {{trip.gpsLon.toFixed(4)}}</text>
+      </view>
+    </view>
+
+    <!-- 游记备注 -->
+    <view wx:if="{{trip.notes}}" class="detail-section">
+      <view class="section-title">📝 游记备注</view>
+      <view class="section-card notes-card">
+        <text class="notes-text">{{trip.notes}}</text>
+      </view>
+    </view>
+
+    <!-- 照片墙 -->
+    <view wx:if="{{trip.photos && trip.photos.length > 0}}" class="detail-section">
+      <view class="section-title">📸 旅行照片 ({{trip.photos.length}} 张)</view>
+      <view class="photo-grid">
+        <image
+          wx:for="{{trip.photos}}"
+          wx:key="index"
+          class="photo-item"
+          src="{{item}}"
+          mode="aspectFill"
+          data-index="{{index}}"
+          bindtap="onPreviewPhoto"
+        />
+      </view>
+    </view>
+
+    <!-- 操作区 -->
+    <view class="detail-actions">
+      <view class="action-btn action-share" bindtap="onShareDetail">
+        <text class="action-icon">📤</text>
+        <text class="action-label">分享</text>
+      </view>
+      <view class="action-btn action-delete" bindtap="onDelete">
+        <text class="action-icon">🗑️</text>
+        <text class="action-label">删除行程</text>
+      </view>
+    </view>
+
+    <view style="height:60rpx;"></view>
+  </scroll-view>
+</view>

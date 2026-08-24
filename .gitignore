@@ -1,0 +1,25 @@
+# 微信小程序开发工具
+project.private.config.json
+.idea/
+
+# 依赖
+node_modules/
+miniprogram_npm/
+
+# 构建产物
+dist/
+build/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.vscode/
+.codebuddy/
+
+# 日志
+*.log
+npm-debug.log*

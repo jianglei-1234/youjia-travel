@@ -1,0 +1,83 @@
+<!--pages/map/map.wxml-->
+<view class="map-page">
+  <!-- 顶部统计 -->
+  <view class="stats-bar animate-fadeIn">
+    <view class="stat-item">
+      <text class="stat-num">{{stats.cities}}</text>
+      <text class="stat-label">点亮城市</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-num">{{stats.provinces}}</text>
+      <text class="stat-label">涉足省份</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-num">{{stats.total}}</text>
+      <text class="stat-label">打卡总数</text>
+    </view>
+  </view>
+
+  <!-- 地图组件 -->
+  <view class="map-wrapper animate-slideUp">
+    <map
+      id="chinaMap"
+      class="china-map"
+      longitude="{{mapCenter[0]}}"
+      latitude="{{mapCenter[1]}}"
+      scale="{{mapScale}}"
+      markers="{{markers}}"
+      show-location="{{false}}"
+      enable-zoom="{{true}}"
+      enable-scroll="{{true}}"
+      enable-rotate="{{false}}"
+      bindmarkertap="onMarkerTap"
+    ></map>
+    <!-- 图例 + 重置按钮 -->
+    <view class="map-legend">
+      <view class="legend-item">
+        <view class="legend-dot lit"></view>
+        <text>已打卡</text>
+      </view>
+      <view class="legend-btn" bindtap="resetView">📍 全国概览</view>
+    </view>
+  </view>
+
+  <!-- 已点亮城市列表 -->
+  <view class="city-section" wx:if="{{visitedCities.length > 0}}">
+    <view class="section-header">
+      <text class="section-title">✨ 已点亮 {{visitedCities.length}} 座城市</text>
+    </view>
+    <view class="city-grid">
+      <view
+        class="city-tag"
+        wx:for="{{visitedCities}}"
+        wx:key="*this"
+        bindtap="onCityTap"
+        data-city="{{item}}"
+      >
+        <view class="city-badge"></view>
+        <text>{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 涉足省份 -->
+  <view class="province-section" wx:if="{{stats.provincesList.length > 0}}">
+    <view class="section-header">
+      <text class="section-title">📍 涉足 {{stats.provincesList.length}} 个省份</text>
+    </view>
+    <view class="city-grid">
+      <view class="province-tag" wx:for="{{stats.provincesList}}" wx:key="*this">
+        <text>{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-map" wx:if="{{visitedCities.length === 0}}">
+    <text class="empty-icon">🗺️</text>
+    <text class="empty-text">还没有打卡过行程</text>
+    <text class="empty-sub">去「行程」打卡，这里就会亮起来</text>
+  </view>
+</view>

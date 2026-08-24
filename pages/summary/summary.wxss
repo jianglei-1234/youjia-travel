@@ -1,0 +1,117 @@
+/** 旅行总结页 WXSS */
+
+/* 全局防溢出 */
+page { overflow-x:hidden; }
+
+.summary-page {
+  min-height:100vh; background:#f6f6f6;
+  display:flex; flex-direction:column;
+  overflow-x:hidden; width:100%;
+  box-sizing:border-box;
+}
+
+.summary-hero {
+  background: linear-gradient(135deg,#07c160,#00b89a);
+  padding: 48rpx 40rpx 40rpx; text-align:center;
+}
+.hero-emoji { font-size:80rpx; display:block; margin-bottom:14rpx; }
+.hero-title { font-size:40rpx; font-weight:800; color:#fff; display:block; margin-bottom:8rpx; }
+.hero-sub   { font-size:24rpx; color:rgba(255,255,255,.85); display:block; }
+
+/* 年份选择 */
+.year-scroll { background:#fff; border-bottom:2rpx solid #ebebeb; }
+.year-list { display:flex; gap:0; padding:12rpx 24rpx; }
+.year-pill {
+  padding:14rpx 30rpx; border-radius:100rpx; font-size:26rpx; color:#9a9a9a;
+  font-weight:500; flex-shrink:0; transition:background .2s, color .2s;
+}
+.year-pill.active { background:#07c160; color:#fff; font-weight:700; }
+
+/* 主体 */
+.summary-body { flex:1; padding:24rpx 28rpx; box-sizing:border-box; width:100%; }
+
+/* 概览网格 */
+.stats-overview { margin-bottom:28rpx; width:100%; box-sizing:border-box; }
+.overview-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16rpx; }
+.overview-card {
+  border-radius:22rpx; padding:28rpx 16rpx; text-align:center;
+  animation: cardIn .4s cubic-bezier(.34,1.56,.64,1) backwards;
+}
+.overview-card:nth-child(1) { animation-delay:0ms; }
+.overview-card:nth-child(2) { animation-delay:60ms; }
+.overview-card:nth-child(3) { animation-delay:120ms; }
+.overview-card:nth-child(4) { animation-delay:180ms; }
+.overview-card:nth-child(5) { animation-delay:240ms; }
+.overview-card:nth-child(6) { animation-delay:300ms; }
+@keyframes cardIn {
+  from { opacity:0; transform:scale(.8) translateY(20rpx); }
+  to   { opacity:1; transform:scale(1) translateY(0); }
+}
+.card-green  { background:#edfbf4; }
+.card-blue   { background:#e8f5ff; }
+.card-orange { background:#fff7e6; }
+.card-pink   { background:#fff0f5; }
+.card-purple { background:#f3eeff; }
+.card-red    { background:#fff1f1; }
+.ov-num   { display:block; font-size:48rpx; font-weight:800; color:#191919; }
+.ov-label { display:block; font-size:20rpx; color:#9a9a9a; margin-top:6rpx; }
+
+/* 分区 */
+.section { margin-bottom:28rpx; }
+.section-header { margin-bottom:16rpx; }
+.section-title { font-size:28rpx; font-weight:700; color:#191919; }
+
+/* 柱状图 */
+.chart-card { background:#fff; border-radius:22rpx; padding:24rpx; box-shadow:0 4rpx 16rpx rgba(0,0,0,.06); box-sizing:border-box; width:100%; }
+.bar-chart {
+  display:flex; align-items:flex-end; gap:0; height:200rpx;
+  justify-content:space-between;
+}
+.bar-col { display:flex; flex-direction:column; align-items:center; flex:1; gap:6rpx; }
+.bar-total {
+  width:28rpx; background:linear-gradient(to top,#07c160,#00e87a);
+  border-radius:6rpx 6rpx 0 0; min-height:4rpx;
+  transition:height .6s cubic-bezier(.4,0,.2,1);
+}
+.bar-label { font-size:16rpx; color:#9a9a9a; }
+.bar-count { font-size:16rpx; color:#07c160; font-weight:600; }
+
+/* 热门地点 */
+.top-list { background:#fff; border-radius:22rpx; overflow:hidden; box-shadow:0 4rpx 16rpx rgba(0,0,0,.06); box-sizing:border-box; width:100%; }
+.top-item {
+  display:flex; align-items:center; padding:24rpx 28rpx; gap:20rpx;
+  border-bottom:2rpx solid #f5f5f5;
+  animation: slideRight .35s cubic-bezier(.4,0,.2,1) backwards;
+}
+.top-item:last-child { border-bottom:none; }
+@keyframes slideRight {
+  from { opacity:0; transform:translateX(-20rpx); }
+  to   { opacity:1; transform:translateX(0); }
+}
+.rank-badge {
+  width:44rpx; height:44rpx; border-radius:50%; display:flex;
+  align-items:center; justify-content:center;
+  font-size:22rpx; font-weight:800; flex-shrink:0;
+}
+.rank-1 { background:#ffd700; color:#fff; }
+.rank-2 { background:#c0c0c0; color:#fff; }
+.rank-3 { background:#cd7f32; color:#fff; }
+.rank-4, .rank-5 { background:#ebebeb; color:#9a9a9a; }
+.top-loc { flex:1; font-size:28rpx; color:#191919; font-weight:600; }
+.top-cnt { font-size:24rpx; color:#9a9a9a; }
+
+/* 空状态 */
+.empty-state { text-align:center; padding:80rpx 40rpx; }
+.empty-emoji { font-size:80rpx; display:block; margin-bottom:20rpx; }
+.empty-title { display:block; font-size:30rpx; font-weight:600; color:#576b95; margin-bottom:10rpx; }
+.empty-sub   { display:block; font-size:24rpx; color:#9a9a9a; }
+
+/* 分享 */
+.share-area {
+  margin-top:20rpx; background:linear-gradient(135deg,#07c160,#00b89a);
+  border-radius:24rpx; padding:32rpx; text-align:center;
+  box-shadow:0 8rpx 28rpx rgba(7,193,96,.3);
+  transition:transform .15s;
+}
+.share-area:active { transform:scale(.97); }
+.share-btn-text { font-size:30rpx; font-weight:700; color:#fff; }

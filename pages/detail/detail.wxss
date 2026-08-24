@@ -1,0 +1,76 @@
+/** 行程详情页 WXSS */
+
+.detail-page { min-height:100vh; background:#f6f6f6; display:flex; flex-direction:column; }
+
+/* Hero */
+.hero {
+  padding: 50rpx 40rpx 48rpx;
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center;
+}
+.hero-icon { font-size: 80rpx; margin-bottom: 16rpx; }
+.hero-location {
+  font-size: 48rpx; font-weight: 800; color: #191919;
+  margin-bottom: 14rpx; word-break: break-all;
+}
+.hero-meta { display: flex; gap: 20rpx; margin-bottom: 20rpx; }
+.hero-date, .hero-time {
+  font-size: 26rpx; color: #576b95;
+  background: rgba(255,255,255,.7); padding: 6rpx 18rpx;
+  border-radius: 100rpx;
+}
+.hero-badges { display: flex; gap: 12rpx; }
+.badge {
+  font-size: 22rpx; font-weight: 600;
+  padding: 6rpx 18rpx; border-radius: 100rpx;
+}
+.badge-checked   { background: #07c160; color: #fff; }
+.badge-pending   { background: #ff9900; color: #fff; }
+.badge-important { background: #fff7e6; color: #ff9900; border: 2rpx solid #ff9900; }
+
+/* 主体 */
+.detail-body { flex: 1; padding: 24rpx 28rpx; }
+
+.detail-section { margin-bottom: 28rpx; }
+.section-title {
+  font-size: 26rpx; font-weight: 700; color: #576b95;
+  margin-bottom: 14rpx; padding-left: 4rpx;
+}
+.section-card {
+  background: #fff; border-radius: 20rpx;
+  padding: 28rpx; box-shadow: 0 4rpx 16rpx rgba(0,0,0,.06);
+}
+
+.detail-value { font-size: 28rpx; color: #191919; display: block; margin-bottom: 8rpx; line-height: 1.6; }
+.gps-text { color: #10aeff; }
+
+/* 备注 */
+.notes-card { }
+.notes-text {
+  font-size: 28rpx; color: #191919; line-height: 1.8;
+  white-space: pre-wrap; display: block;
+}
+
+/* 照片墙 */
+.photo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8rpx; border-radius: 20rpx; overflow: hidden; }
+.photo-item {
+  width: 100%; aspect-ratio: 1;
+  transition: transform .15s;
+}
+.photo-item:active { transform: scale(.95); }
+
+/* 操作区 */
+.detail-actions { display: flex; gap: 20rpx; margin-top: 40rpx; }
+.action-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  gap: 12rpx; padding: 30rpx 20rpx; border-radius: 22rpx;
+  background: #fff; box-shadow: 0 4rpx 16rpx rgba(0,0,0,.06);
+  transition: transform .15s;
+}
+.action-btn:active { transform: scale(.95); }
+.action-share { border: 2rpx solid #07c160; }
+.action-delete { border: 2rpx solid #fa5151; }
+.action-icon { font-size: 48rpx; }
+.action-label { font-size: 26rpx; font-weight: 600; color: #576b95; }
+.action-share .action-label { color: #07c160; }
+.action-delete .action-label { color: #fa5151; }

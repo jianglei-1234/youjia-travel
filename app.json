@@ -1,0 +1,65 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/detail/detail",
+    "pages/summary/summary",
+    "pages/map/map",
+    "pages/album/album",
+    "pages/mine/mine"
+  ],
+  "tabBar": {
+    "color": "#9a9a9a",
+    "selectedColor": "#07c160",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "行程",
+        "iconPath": "assets/tab_trip.png",
+        "selectedIconPath": "assets/tab_trip_sel.png"
+      },
+      {
+        "pagePath": "pages/map/map",
+        "text": "足迹地图",
+        "iconPath": "assets/tab_map.png",
+        "selectedIconPath": "assets/tab_map_sel.png"
+      },
+      {
+        "pagePath": "pages/album/album",
+        "text": "旅行相册",
+        "iconPath": "assets/tab_album.png",
+        "selectedIconPath": "assets/tab_album_sel.png"
+      },
+      {
+        "pagePath": "pages/summary/summary",
+        "text": "统计",
+        "iconPath": "assets/tab_stat.png",
+        "selectedIconPath": "assets/tab_stat_sel.png"
+      },
+      {
+        "pagePath": "pages/mine/mine",
+        "text": "我的",
+        "iconPath": "assets/tab_mine.png",
+        "selectedIconPath": "assets/tab_mine_sel.png"
+      }
+    ]
+  },
+  "window": {
+    "navigationBarBackgroundColor": "#07c160",
+    "navigationBarTitleText": "游佳记 · 旅行打卡",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f6f6f6",
+    "backgroundTextStyle": "light",
+    "enablePullDownRefresh": false
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents",
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于GPS打卡记录您的旅行位置"
+    }
+  },
+  "requiredPrivateInfos": ["getLocation"]
+}

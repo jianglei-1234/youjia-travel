@@ -1,0 +1,389 @@
+<!--
+  游佳记 · 主页（v3）
+  包含：搜索、筛选Tab、统计、行程列表（编辑/重要/颜色/照片/GPS）
+        新增/编辑弹层、颜色选择、照片选择、好友邀请
+-->
+
+<!-- ═══════ 顶部：搜索栏 ═══════ -->
+<view class="top-bar">
+  <view class="search-wrap {{showSearch ? 'expanded' : ''}}">
+    <view wx:if="{{!showSearch}}" class="top-title-row">
+      <text class="top-title">🗺️ 游佳记</text>
+      <view class="top-actions">
+        <view class="top-btn" bindtap="onToggleSearch">🔍</view>
+        <view class="top-btn" bindtap="onOpenInvite">👥</view>
+        <view class="top-btn danger-btn" bindtap="onClearChecked">🗑️</view>
+      </view>
+    </view>
+    <view wx:else class="search-input-row">
+      <input
+        class="search-input"
+        placeholder="搜索地点或备注…"
+        value="{{searchKeyword}}"
+        bindinput="onSearchInput"
+        focus="{{true}}"
+        confirm-type="search"
+      />
+      <view class="search-cancel-btn" bindtap="onToggleSearch">取消</view>
+    </view>
+  </view>
+</view>
+
+<!-- ═══════ 统计仪表盘 ═══════ -->
+<view class="dashboard">
+  <view class="stats-grid">
+    <view class="stat-card" bindtap="onFilter" data-filter="all">
+      <text class="stat-num">{{totalCount}}</text>
+      <text class="stat-label">总行程</text>
+    </view>
+    <view class="stat-card" bindtap="onFilter" data-filter="unchecked">
+      <text class="stat-num">{{totalCount - checkedCount}}</text>
+      <text class="stat-label">待出发</text>
+    </view>
+    <view class="stat-card" bindtap="onFilter" data-filter="checked">
+      <text class="stat-num">{{checkedCount}}</text>
+      <text class="stat-label">已打卡</text>
+    </view>
+    <view class="stat-card" bindtap="onFilter" data-filter="important">
+      <text class="stat-num">⭐</text>
+      <text class="stat-label">重要</text>
+    </view>
+  </view>
+  <view class="progress-wrap">
+    <view class="progress-track">
+      <view class="progress-bar" style="width:{{progressPct}}%"></view>
+    </view>
+    <text class="progress-pct">{{progressPct}}%</text>
+  </view>
+</view>
+
+<!-- ═══════ 筛选 Tab ═══════ -->
+<view class="filter-nav">
+  <view
+    class="filter-btn {{filter === 'all' ? 'active' : ''}}"
+    data-filter="all"
+    bindtap="onFilter"
+    hover-class="filter-btn-hover"
+    hover-stay-time="150"
+  >全部</view>
+  <view
+    class="filter-btn {{filter === 'unchecked' ? 'active' : ''}}"
+    data-filter="unchecked"
+    bindtap="onFilter"
+    hover-class="filter-btn-hover"
+    hover-stay-time="150"
+  >未打卡</view>
+  <view
+    class="filter-btn {{filter === 'checked' ? 'active' : ''}}"
+    data-filter="checked"
+    bindtap="onFilter"
+    hover-class="filter-btn-hover"
+    hover-stay-time="150"
+  >已打卡</view>
+  <view
+    class="filter-btn {{filter === 'important' ? 'active' : ''}}"
+    data-filter="important"
+    bindtap="onFilter"
+    hover-class="filter-btn-hover"
+    hover-stay-time="150"
+  >⭐重要</view>
+</view>
+
+<!-- ═══════ 行程列表 ═══════ -->
+<scroll-view class="trip-list" scroll-y enhanced show-scrollbar="{{false}}">
+
+  <!-- 空状态 -->
+  <view wx:if="{{displayList.length === 0}}" class="empty-state">
+    <view class="empty-emoji">🏔️</view>
+    <text class="empty-title">{{emptyTitle}}</text>
+    <text class="empty-sub">点击右下角 + 按钮，开始记录你的旅程吧！</text>
+  </view>
+
+  <!-- 分组渲染 -->
+  <block wx:for="{{dateGroups}}" wx:key="date" wx:for-item="group">
+    <view class="date-group">
+      <view class="date-header">
+        <text class="date-main">{{group.fmtDate}}</text>
+        <text class="date-weekday">{{group.weekday}}</text>
+        <text wx:if="{{group.isToday}}" class="date-today-badge">今天</text>
+      </view>
+
+      <block wx:for="{{group.trips}}" wx:key="id">
+        <view
+          class="card-wrapper {{currentSwipeId === item.id ? 'swiping' : ''}}"
+          data-id="{{item.id}}"
+          bindtouchstart="onTouchStart"
+          bindtouchmove="onTouchMove"
+          bindtouchend="onTouchEnd"
+        >
+          <view class="card-swipe-bg"><text>🗑️ 删除</text></view>
+
+          <view
+            class="trip-card {{item.checked ? 'is-checked' : ''}} {{item.isImportant ? 'is-important' : ''}}"
+            style="transform:translateX({{item._swipeX||0}}px);border-left-color:{{item.colorBar}};"
+          >
+            <!-- 重要角标 -->
+            <view wx:if="{{item.isImportant}}" class="important-badge">⭐</view>
+
+            <view class="card-body">
+              <!-- 打卡复选框 -->
+              <view class="card-check {{item.checked ? 'checked' : ''}}" data-id="{{item.id}}" bindtap="onCheckTap">
+                <image wx:if="{{item.checked}}" class="check-icon" src="/assets/check.svg" mode="aspectFit"/>
+              </view>
+
+              <!-- 内容 -->
+              <view class="card-content" data-id="{{item.id}}" bindtap="onGoDetail">
+                <view class="card-location-row">
+                  <text class="card-location-text {{item.checked ? 'line-through' : ''}}">📍 {{item.location}}</text>
+                </view>
+                <text wx:if="{{item.time}}" class="card-time">🕐 {{item.time}}</text>
+                <text wx:if="{{item.notes}}" class="card-notes">📝 {{item.notes}}</text>
+                <!-- GPS 打卡标记 -->
+                <text wx:if="{{item.gpsLat}}" class="card-gps-tag">📍 GPS 已记录</text>
+              </view>
+
+              <!-- 右侧操作区 -->
+              <view class="card-right">
+                <view class="card-right-actions">
+                  <view class="btn-action btn-star {{item.isImportant ? 'starred' : ''}}" data-id="{{item.id}}" bindtap="onToggleImportantDirect">⭐</view>
+                  <view class="btn-action btn-edit" data-id="{{item.id}}" bindtap="onEditTrip">✏️</view>
+                  <view class="btn-action btn-gps" data-id="{{item.id}}" bindtap="onGPSCheckIn">📍</view>
+                  <view class="btn-action btn-delete" data-id="{{item.id}}" bindtap="onDelete">✕</view>
+                </view>
+
+                <!-- 照片缩略图 -->
+                <view wx:if="{{item.photos && item.photos.length > 0}}" class="card-photos">
+                  <block wx:for="{{item.photos}}" wx:key="index" wx:for-item="pic">
+                    <image
+                      wx:if="{{index < 4}}"
+                      class="photo-thumb"
+                      src="{{pic}}"
+                      mode="aspectFill"
+                      data-id="{{item.id}}"
+                      data-index="{{index}}"
+                      bindtap="onPreviewPhoto"
+                    />
+                  </block>
+                  <view wx:if="{{item.photos.length > 4}}" class="photo-more-badge">
+                    <text>+{{item.photos.length - 4}}</text>
+                  </view>
+                </view>
+              </view>
+            </view>
+
+            <!-- 标签行 -->
+            <view class="card-tags">
+              <text class="tag {{item.countdownClass}}">{{item.countdownText}}</text>
+            </view>
+          </view>
+        </view>
+      </block>
+    </view>
+  </block>
+
+  <view style="height:200rpx;"></view>
+</scroll-view>
+
+<!-- ═══════ FAB 添加按钮 ═══════ -->
+<view class="fab" bindtap="onOpenAdd" hover-class="fab-hover">
+  <text class="fab-icon">＋</text>
+</view>
+
+<!-- ═══════ 新增行程弹层 ═══════ -->
+<view class="overlay {{showAdd ? 'open' : ''}}" bindtap="onCloseAdd">
+  <view class="sheet" catchtap="noop">
+    <view class="sheet-handle"></view>
+    <text class="sheet-title">✈️ 新建行程</text>
+
+    <!-- 颜色主题选择 -->
+    <view class="color-row">
+      <text class="field-label">🎨 主题颜色</text>
+      <view class="color-picker">
+        <view
+          wx:for="{{colorThemes}}"
+          wx:key="id"
+          class="color-dot {{form.colorId === item.id ? 'selected' : ''}}"
+          style="background:{{item.bar}};"
+          data-id="{{item.id}}"
+          bindtap="onPickColor"
+        ></view>
+      </view>
+    </view>
+
+    <!-- 重要标记 -->
+    <view class="important-toggle-row" bindtap="onToggleImportant">
+      <text class="field-label">⭐ 标记为重要行程</text>
+      <view class="toggle-switch {{form.isImportant ? 'on' : ''}}">
+        <view class="toggle-thumb"></view>
+      </view>
+    </view>
+
+    <view class="form-field">
+      <text class="field-label">📍 地点名称</text>
+      <input
+        class="field-input"
+        placeholder="例如：故宫、西湖、张家界…"
+        maxlength="30"
+        value="{{form.location}}"
+        bindinput="onInputLocation"
+        focus="{{showAdd}}"
+        cursor-spacing="180"
+        adjust-position="{{true}}"
+      />
+    </view>
+
+    <view class="form-row">
+      <view class="form-field">
+        <text class="field-label">📅 日期</text>
+        <picker mode="date" value="{{form.date}}" bindchange="onPickDate">
+          <view class="field-input picker-input">{{form.date || '请选择日期'}}</view>
+        </picker>
+      </view>
+      <view class="form-field">
+        <text class="field-label">⏰ 时间</text>
+        <picker mode="time" value="{{form.time}}" bindchange="onPickTime">
+          <view class="field-input picker-input">{{form.time || '选择时间'}}</view>
+        </picker>
+      </view>
+    </view>
+
+    <view class="form-field">
+      <text class="field-label">📝 游记备注（支持换行，选填）</text>
+      <textarea
+        class="field-input field-textarea"
+        placeholder="记录特别的想法、美食、路线…"
+        maxlength="500"
+        value="{{form.notes}}"
+        bindinput="onInputNotes"
+        auto-height
+      />
+    </view>
+
+    <view class="form-actions">
+      <button class="btn-cancel" bindtap="onCloseAdd">取消</button>
+      <button class="btn-primary" bindtap="onSaveTrip">保存行程</button>
+    </view>
+  </view>
+</view>
+
+<!-- ═══════ 编辑行程弹层 ═══════ -->
+<view class="overlay {{showEdit ? 'open' : ''}}" bindtap="onCloseEdit">
+  <view class="sheet" catchtap="noop">
+    <view class="sheet-handle"></view>
+    <text class="sheet-title">✏️ 编辑行程</text>
+
+    <view class="color-row">
+      <text class="field-label">🎨 主题颜色</text>
+      <view class="color-picker">
+        <view
+          wx:for="{{colorThemes}}"
+          wx:key="id"
+          class="color-dot {{form.colorId === item.id ? 'selected' : ''}}"
+          style="background:{{item.bar}};"
+          data-id="{{item.id}}"
+          bindtap="onPickColor"
+        ></view>
+      </view>
+    </view>
+
+    <view class="important-toggle-row" bindtap="onToggleImportant">
+      <text class="field-label">⭐ 标记为重要行程</text>
+      <view class="toggle-switch {{form.isImportant ? 'on' : ''}}">
+        <view class="toggle-thumb"></view>
+      </view>
+    </view>
+
+    <view class="form-field">
+      <text class="field-label">📍 地点名称</text>
+      <input
+        class="field-input"
+        placeholder="例如：故宫、西湖、张家界…"
+        maxlength="30"
+        value="{{form.location}}"
+        bindinput="onInputLocation"
+        cursor-spacing="180"
+        adjust-position="{{true}}"
+      />
+    </view>
+
+    <view class="form-row">
+      <view class="form-field">
+        <text class="field-label">📅 日期</text>
+        <picker mode="date" value="{{form.date}}" bindchange="onPickDate">
+          <view class="field-input picker-input">{{form.date || '请选择日期'}}</view>
+        </picker>
+      </view>
+      <view class="form-field">
+        <text class="field-label">⏰ 时间</text>
+        <picker mode="time" value="{{form.time}}" bindchange="onPickTime">
+          <view class="field-input picker-input">{{form.time || '选择时间'}}</view>
+        </picker>
+      </view>
+    </view>
+
+    <view class="form-field">
+      <text class="field-label">📝 游记备注（支持换行，选填）</text>
+      <textarea
+        class="field-input field-textarea"
+        placeholder="记录特别的想法、美食、路线…"
+        maxlength="500"
+        value="{{form.notes}}"
+        bindinput="onInputNotes"
+        auto-height
+      />
+    </view>
+
+    <view class="form-actions">
+      <button class="btn-cancel" bindtap="onCloseEdit">取消</button>
+      <button class="btn-primary" bindtap="onSaveEdit">保存修改</button>
+    </view>
+  </view>
+</view>
+
+<!-- ═══════ 照片选择弹层 ═══════ -->
+<view class="overlay {{showPhoto ? 'open' : ''}}" bindtap="onSkipPhoto">
+  <view class="sheet photo-sheet" catchtap="noop">
+    <view class="sheet-handle"></view>
+    <text class="photo-sheet-title">📸 为这次打卡留下纪念</text>
+    <text class="photo-sheet-sub">可多选，最多 50 张</text>
+    <view class="photo-btns">
+      <view class="photo-btn" bindtap="onTakePhoto" hover-class="photo-btn-hover">
+        <text class="photo-btn-icon">📷</text>
+        <text class="photo-btn-label">拍照</text>
+      </view>
+      <view class="photo-btn" bindtap="onChoosePhoto" hover-class="photo-btn-hover">
+        <text class="photo-btn-icon">🖼️</text>
+        <text class="photo-btn-label">从相册选择</text>
+      </view>
+    </view>
+    <button class="btn-skip" bindtap="onSkipPhoto">跳过，直接打卡 ✅</button>
+  </view>
+</view>
+
+<!-- ═══════ 好友邀请弹层 ═══════ -->
+<view class="overlay {{showInvite ? 'open' : ''}}" bindtap="onCloseInvite">
+  <view class="sheet invite-sheet" catchtap="noop">
+    <view class="sheet-handle"></view>
+    <text class="sheet-title">👥 多人同行</text>
+    <text class="invite-desc">将邀请码发给好友，好友输入后即可加入你的旅行，共同记录、各自打卡。</text>
+
+    <view class="invite-code-box">
+      <text class="invite-code-label">你的邀请码</text>
+      <text class="invite-code-text" selectable>{{inviteCode}}</text>
+    </view>
+
+    <view class="invite-actions">
+      <button class="btn-invite-copy" bindtap="onCopyInviteCode">📋 复制邀请码</button>
+      <button class="btn-invite-share" open-type="share">🔗 分享给好友</button>
+    </view>
+
+    <view class="invite-tip">
+      <text class="invite-tip-text">💡 提示：多人同行功能正在开发中，完整体验即将上线。</text>
+    </view>
+
+    <button class="btn-skip" bindtap="onCloseInvite">关闭</button>
+  </view>
+</view>
+
+<!-- ═══════ Toast ═══════ -->
+<view class="toast {{toastShow ? 'show' : ''}}">{{toastText}}</view>

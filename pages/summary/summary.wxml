@@ -1,0 +1,105 @@
+<!-- 旅行总结页 WXML -->
+<view class="summary-page">
+
+  <!-- 顶部 -->
+  <view class="summary-hero">
+    <text class="hero-emoji">🌍</text>
+    <text class="hero-title">{{selectedYear}} 年旅行回顾</text>
+    <text class="hero-sub">记录每一段美好旅程</text>
+  </view>
+
+  <!-- 年份切换 -->
+  <scroll-view class="year-scroll" scroll-x show-scrollbar="{{false}}">
+    <view class="year-list">
+      <view
+        wx:for="{{allYears}}"
+        wx:key="index"
+        class="year-pill {{item == selectedYear ? 'active' : ''}}"
+        data-year="{{item}}"
+        bindtap="onSwitchYear"
+      >{{item}}</view>
+    </view>
+  </scroll-view>
+
+  <scroll-view class="summary-body" scroll-y show-scrollbar="{{false}}">
+
+    <!-- 数据概览 -->
+    <view wx:if="{{stats}}" class="stats-overview">
+      <view class="overview-grid">
+        <view class="overview-card card-green">
+          <text class="ov-num">{{stats.total}}</text>
+          <text class="ov-label">行程总数</text>
+        </view>
+        <view class="overview-card card-blue">
+          <text class="ov-num">{{stats.checked}}</text>
+          <text class="ov-label">已打卡</text>
+        </view>
+        <view class="overview-card card-orange">
+          <text class="ov-num">{{stats.photos}}</text>
+          <text class="ov-label">旅行照片</text>
+        </view>
+        <view class="overview-card card-pink">
+          <text class="ov-num">{{stats.pct}}%</text>
+          <text class="ov-label">完成率</text>
+        </view>
+        <view class="overview-card card-purple">
+          <text class="ov-num">{{stats.important}}</text>
+          <text class="ov-label">重要行程</text>
+        </view>
+        <view class="overview-card card-red">
+          <text class="ov-num">{{stats.streak}}</text>
+          <text class="ov-label">连续打卡(天)</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 月度分布 -->
+    <view wx:if="{{monthData.length > 0}}" class="section">
+      <view class="section-header">
+        <text class="section-title">📅 月度分布</text>
+      </view>
+      <view class="chart-card">
+        <view class="bar-chart">
+          <view wx:for="{{monthData}}" wx:key="month" class="bar-col">
+            <view class="bar-total" style="height:{{item.barHeight}}rpx;"></view>
+            <text class="bar-label">{{item.month}}</text>
+            <text class="bar-count">{{item.total}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 热门地点 -->
+    <view wx:if="{{topLocations.length > 0}}" class="section">
+      <view class="section-header">
+        <text class="section-title">📍 最常去的地方</text>
+      </view>
+      <view class="top-list">
+        <view
+          wx:for="{{topLocations}}"
+          wx:key="index"
+          class="top-item"
+          style="animation-delay:{{index * 80}}ms"
+        >
+          <view class="rank-badge rank-{{index + 1}}">{{index + 1}}</view>
+          <text class="top-loc">{{item.loc}}</text>
+          <text class="top-cnt">×{{item.cnt}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view wx:if="{{stats && stats.total === 0}}" class="empty-state">
+      <text class="empty-emoji">✈️</text>
+      <text class="empty-title">{{selectedYear}} 年还没有行程</text>
+      <text class="empty-sub">去首页添加行程，开始记录吧！</text>
+    </view>
+
+    <!-- 分享按钮 -->
+    <view class="share-area" bindtap="onShareSummary">
+      <text class="share-btn-text">📤 分享我的旅行年报</text>
+    </view>
+
+    <view style="height:80rpx;"></view>
+  </scroll-view>
+</view>

@@ -1,0 +1,96 @@
+<!-- pages/album/album.wxml -->
+<view class="album-page">
+  <!-- 顶部统计 -->
+  <view class="album-stats animate-fadeIn">
+    <view class="album-stat-card">
+      <text class="alb-stat-icon">🖼️</text>
+      <text class="alb-stat-num">{{totalPhotos}}</text>
+      <text class="alb-stat-label">照片</text>
+    </view>
+    <view class="album-stat-card">
+      <text class="alb-stat-icon">📍</text>
+      <text class="alb-stat-num">{{totalTrips}}</text>
+      <text class="alb-stat-label">行程</text>
+    </view>
+    <view class="album-stat-card" bindtap="toggleView">
+      <text class="alb-stat-icon">{{viewMode === 'grid' ? '🔲' : '📋'}}</text>
+      <text class="alb-stat-num">{{viewMode === 'grid' ? '宫格' : '列表'}}</text>
+      <text class="alb-stat-label">点击切换</text>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-album" wx:if="{{albums.length === 0}}">
+    <text class="empty-icon">📷</text>
+    <text class="empty-title">还没有旅行照片</text>
+    <text class="empty-sub">在「行程」里拍照打卡，照片会汇集到这里</text>
+  </view>
+
+  <!-- 相册列表 -->
+  <block wx:for="{{groupedByDate}}" wx:key="date" wx:for-item="group">
+    <view class="date-group">
+      <view class="date-header">
+        <text class="date-text">{{group.date}}</text>
+        <text class="date-count">{{group.items.length}} 个行程</text>
+      </view>
+
+      <block wx:for="{{group.items}}" wx:for-item="item" wx:key="id">
+        <view class="album-card animate-slideUp">
+          <!-- 卡片头部 -->
+          <view class="card-head">
+            <view class="color-bar" style="background:{{item.color}}"></view>
+            <text class="card-location">{{item.location}}</text>
+            <text class="card-status {{item.checked ? 'checked' : ''}}" wx:if="{{item.checked}}">✓ 已打卡</text>
+          </view>
+
+          <!-- 宫格模式 -->
+          <view class="photo-grid" wx:if="{{viewMode === 'grid' && item.photos.length > 0}}">
+            <image
+              wx:for="{{item.photos}}"
+              wx:for-item="url"
+              wx:for-index="pIdx"
+              wx:key="pIdx"
+              class="grid-photo {{pIdx === 0 ? 'first' : ''}}"
+              src="{{url}}"
+              mode="aspectFill"
+              bindtap="previewImage"
+              data-url="{{url}}"
+              data-urls="{{item.photos}}"
+              lazy-load
+            ></image>
+          </view>
+
+          <!-- 列表模式 -->
+          <view class="photo-list" wx:if="{{viewMode === 'list' && item.photos.length > 0}}">
+            <view
+              class="list-row"
+              wx:for="{{item.photos}}"
+              wx:for-item="url"
+              wx:for-index="pIdx"
+              wx:key="pIdx"
+            >
+              <image class="list-thumb" src="{{url}}" mode="aspectFill" bindtap="previewImage" data-url="{{url}}" data-urls="{{item.photos}}"></image>
+              <view class="list-info">
+                <text class="list-name">照片 {{pIdx + 1}}</text>
+                <text class="list-loc">{{item.location}}</text>
+              </view>
+              <text class="list-del" bindtap="deletePhoto" data-tripid="{{item.id}}" data-photoidx="{{pIdx}}">🗑</text>
+            </view>
+          </view>
+
+          <!-- 备注 -->
+          <view class="card-note" wx:if="{{item.note}}">
+            <text class="note-label">💬 </text>
+            <text class="note-content">{{item.note}}</text>
+          </view>
+
+          <!-- 底部操作 -->
+          <view class="card-footer">
+            <text class="footer-hint">点击图片可放大查看</text>
+            <text class="footer-view" bindtap="previewAlbum" data-urls="{{item.photos}}" data-current="{{item.photos[0]}}">查看全部 ▶</text>
+          </view>
+        </view>
+      </block>
+    </view>
+  </block>
+</view>

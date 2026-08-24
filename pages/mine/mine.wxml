@@ -1,0 +1,109 @@
+<!-- pages/mine/mine.wxml -->
+<view class="mine-page">
+  <!-- 头像区域 -->
+  <view class="profile-card animate-fadeIn">
+    <view class="profile-bg"></view>
+    <view class="profile-content">
+      <button class="avatar-btn" open-type="getUserInfo" bindgetuserinfo="onGetUserInfo" wx:if="{{!hasLogin}}">
+        <image class="avatar-img" src="/touxiang.png" mode="aspectFill"></image>
+        <text class="login-hint">点击授权登录</text>
+      </button>
+      <block wx:else>
+        <image class="avatar-img" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
+        <text class="nickname">{{userInfo.nickName}}</text>
+      </block>
+    </view>
+  </view>
+
+  <!-- 数据面板 -->
+  <view class="data-panel animate-slideUp">
+    <view class="data-row">
+      <view class="data-cell">
+        <text class="data-num">{{stats.total}}</text>
+        <text class="data-label">全部行程</text>
+      </view>
+      <view class="data-cell">
+        <text class="data-num green">{{stats.checked}}</text>
+        <text class="data-label">已打卡</text>
+      </view>
+      <view class="data-cell">
+        <text class="data-num orange">{{stats.important}}</text>
+        <text class="data-label">重要行程</text>
+      </view>
+      <view class="data-cell">
+        <text class="data-num blue">{{stats.rate}}%</text>
+        <text class="data-label">完成率</text>
+      </view>
+    </view>
+    <view class="data-row small">
+      <view class="data-cell">
+        <text class="data-num-sm">{{stats.photos}}</text>
+        <text class="data-label-sm">旅行照片</text>
+      </view>
+      <view class="data-cell">
+        <text class="data-num-sm">{{cityCount}}</text>
+        <text class="data-label-sm">城市</text>
+      </view>
+      <view class="data-cell">
+        <text class="data-num-sm">{{provinceCount}}</text>
+        <text class="data-label-sm">省份</text>
+      </view>
+      <view class="data-cell">
+        <text class="data-num-sm">{{streak}}天</text>
+        <text class="data-label-sm">连续打卡</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 成就 -->
+  <view class="section">
+    <text class="section-title">🏅 旅行成就</text>
+    <view class="achievement-grid">
+      <view class="achieve-card {{item.unlocked ? 'unlocked' : 'locked'}}" wx:for="{{achievements}}" wx:key="title">
+        <text class="achieve-icon">{{item.icon}}</text>
+        <text class="achieve-title">{{item.title}}</text>
+        <text class="achieve-desc">{{item.desc}}</text>
+        <view class="achieve-badge" wx:if="{{item.unlocked}}">✓</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 功能菜单 -->
+  <view class="section">
+    <text class="section-title">⚙️ 设置与工具</text>
+    <view class="menu-list">
+      <view class="menu-item" bindtap="exportData">
+        <text class="menu-icon">📋</text>
+        <text class="menu-text">导出行程数据</text>
+        <text class="menu-sub">复制 JSON 到剪贴板</text>
+        <text class="menu-arrow">▶</text>
+      </view>
+      <view class="menu-item" bindtap="toggleAbout">
+        <text class="menu-icon">ℹ️</text>
+        <text class="menu-text">关于游佳记</text>
+        <text class="menu-arrow">{{showAbout ? '▼' : '▶'}}</text>
+      </view>
+    </view>
+
+    <!-- 关于展开 -->
+    <view class="about-panel" wx:if="{{showAbout}}">
+      <text class="about-line">🟢 游佳记 · 旅行打卡 v2.0</text>
+      <text class="about-line">📅 数据占用：{{dataSize}}</text>
+      <text class="about-line">💡 记录每一次旅行的美好</text>
+    </view>
+  </view>
+
+  <!-- 危险操作 -->
+  <view class="section danger-section">
+    <text class="section-title danger-title">⚠️ 危险操作</text>
+    <view class="menu-item danger-item" bindtap="showClearConfirm">
+      <text class="menu-icon">🗑️</text>
+      <text class="menu-text danger-text">清空所有数据</text>
+      <text class="menu-sub danger-sub">不可恢复</text>
+      <text class="menu-arrow">▶</text>
+    </view>
+  </view>
+
+  <!-- 底部留白 -->
+  <view class="bottom-space"></view>
+</view>
