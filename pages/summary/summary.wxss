@@ -69,8 +69,15 @@ page { overflow-x:hidden; }
 }
 .bar-col { display:flex; flex-direction:column; align-items:center; flex:1; gap:6rpx; }
 .bar-total {
-  width:28rpx; background:linear-gradient(to top,#07c160,#00e87a);
+  position:relative; width:28rpx; background:#d9f2e5;
   border-radius:6rpx 6rpx 0 0; min-height:4rpx;
+  transition:height .6s cubic-bezier(.4,0,.2,1);
+}
+/* 【优化 2026-09-25】深色部分 = 当月已打卡数量，叠加在浅色总数柱上 */
+.bar-checked {
+  position:absolute; bottom:0; left:0; width:100%;
+  background:linear-gradient(to top,#07c160,#00e87a);
+  border-radius:6rpx 6rpx 0 0;
   transition:height .6s cubic-bezier(.4,0,.2,1);
 }
 .bar-label { font-size:16rpx; color:#9a9a9a; }
@@ -115,3 +122,6 @@ page { overflow-x:hidden; }
 }
 .share-area:active { transform:scale(.97); }
 .share-btn-text { font-size:30rpx; font-weight:700; color:#fff; }
+/* 【优化 2026-09-25】分享按钮改用原生 button，重置默认样式保持原卡片外观 */
+button.share-area { line-height:1.4; }
+.share-area::after { border:none; }

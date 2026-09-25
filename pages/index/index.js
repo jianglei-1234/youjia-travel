@@ -19,9 +19,8 @@ Page({
     dateGroups: [],
     emptyTitle: '还没有行程',
 
-    // 弹层控制
-    showAdd: false,
-    showEdit: false,
+    // 弹层控制（【优化 2026-09-25】新增/编辑合并为一个弹层 showSheet，editId 区分两种模式）
+    showSheet: false,
     showPhoto: false,
     showInvite: false,
 
@@ -55,6 +54,9 @@ Page({
   },
 
   onShow() {
+    // 【优化 2026-09-25】从详情页/相册页返回时重新读取本地存储，
+    // 保证在其它页面做的删除、删照片等操作能同步回主页列表
+    this.loadData();
     this.renderAll();
   },
 
@@ -236,7 +238,7 @@ Page({
   ══════════════════════════════════ */
   onOpenAdd() {
     this.setData({
-      showAdd: true,
+      showSheet: true,
       editId: null,
       form: {
         location: '', date: this.todayStr(), time: '',
@@ -244,7 +246,8 @@ Page({
       },
     });
   },
-  onCloseAdd() { this.setData({ showAdd: false }); },
+  // 【优化 2026-09-25】新增/编辑共用一个关闭方法（原 onCloseAdd / onCloseEdit 合并）
+  onCloseSheet() { this.setData({ showSheet: false, editId: null }); },
 
   /* ══════════════════════════════════
      事件：编辑行程
@@ -254,7 +257,7 @@ Page({
     const trip = this.data.trips.find(t => t.id === id);
     if (!trip) return;
     this.setData({
-      showEdit: true,
+      showSheet: true,
       editId: id,
       form: {
         location:    trip.location,
@@ -266,7 +269,7 @@ Page({
       },
     });
   },
-  onCloseEdit() { this.setData({ showEdit: false, editId: null }); },
+  // 【优化 2026-09-25】原独立的 onCloseEdit 已合并进 onCloseSheet，此处不再需要
 
   /* ══════════════════════════════════
      颜色选择
@@ -302,59 +305,52 @@ Page({
   onPickTime(e)      { this.setData({ 'form.time':     e.detail.value }); },
 
   /* ══════════════════════════════════
-     事件：保存新行程
+     事件：保存行程（【优化 2026-09-25】新增/编辑共用：有 editId 为编辑，否则为新增）
   ══════════════════════════════════ */
-  onSaveTrip() {
+  onSaveSheet() {
     const { location, date } = this.data.form;
     if (!location.trim()) { wx.showToast({ title:'请输入地点名称', icon:'none' }); return; }
     if (!date)            { wx.showToast({ title:'请选择日期',     icon:'none' }); return; }
 
-    const trip = {
-      id:          Date.now().toString(36) + Math.random().toString(36).slice(2,6),
-      location:    location.trim(),
-      date,
-      time:        this.data.form.time,
-      notes:       this.data.form.notes.trim(),
-      colorId:     this.data.form.colorId || 'green',
-      isImportant: this.data.form.isImportant || false,
-      checked:     false,
-      photos:      [],
-      checkedAt:   null,
-      createdAt:   Date.now(),
-    };
-
-    this.data.trips = [trip, ...this.data.trips];
-    this.setData({ showAdd: false });
-    this.saveData();
-    this.renderAll();
-    this.showToast('行程已添加 ✅');
-  },
-
-  /* ══════════════════════════════════
-     事件：保存编辑
-  ══════════════════════════════════ */
-  onSaveEdit() {
-    const id = this.data.editId;
-    if (!id) return;
-    const { location, date } = this.data.form;
-    if (!location.trim()) { wx.showToast({ title:'请输入地点名称', icon:'none' }); return; }
-    if (!date)            { wx.showToast({ title:'请选择日期',     icon:'none' }); return; }
-
-    this.data.trips = this.data.trips.map(t =>
-      t.id === id ? {
-        ...t,
+    if (this.data.editId) {
+      // ── 编辑模式：更新已有行程 ──
+      const id = this.data.editId;
+      this.data.trips = this.data.trips.map(t =>
+        t.id === id ? {
+          ...t,
+          location:    location.trim(),
+          date,
+          time:        this.data.form.time,
+          notes:       this.data.form.notes.trim(),
+          colorId:     this.data.form.colorId || 'green',
+          isImportant: this.data.form.isImportant || false,
+        } : t
+      );
+      this.setData({ showSheet: false, editId: null });
+      this.saveData();
+      this.renderAll();
+      this.showToast('修改已保存 ✅');
+    } else {
+      // ── 新增模式：插入列表顶部 ──
+      const trip = {
+        id:          Date.now().toString(36) + Math.random().toString(36).slice(2,6),
         location:    location.trim(),
         date,
         time:        this.data.form.time,
         notes:       this.data.form.notes.trim(),
         colorId:     this.data.form.colorId || 'green',
         isImportant: this.data.form.isImportant || false,
-      } : t
-    );
-    this.setData({ showEdit: false, editId: null });
-    this.saveData();
-    this.renderAll();
-    this.showToast('修改已保存 ✅');
+        checked:     false,
+        photos:      [],
+        checkedAt:   null,
+        createdAt:   Date.now(),
+      };
+      this.data.trips = [trip, ...this.data.trips];
+      this.setData({ showSheet: false });
+      this.saveData();
+      this.renderAll();
+      this.showToast('行程已添加 ✅');
+    }
   },
 
   /* ══════════════════════════════════
@@ -510,6 +506,9 @@ Page({
           this.saveData();
           this.renderAll();
           this.showToast('已删除');
+        } else {
+          // 【优化 2026-09-25】用户取消删除时，卡片平滑回弹到原位（修复卡在 -160px 的 bug）
+          this.updateSwipeX(id, 0);
         }
       },
     });
@@ -541,9 +540,16 @@ Page({
     }
     this._ts = null;
   },
+  // 【优化 2026-09-25】滑动时同步更新 trips / displayList / dateGroups 三份数据，
+  // 保证卡片位移实时生效；同时供"取消删除后回弹"复用
   updateSwipeX(id, x) {
-    const trips = this.data.trips.map(t => t.id === id ? { ...t, _swipeX: x } : t);
-    this.setData({ trips, currentSwipeId: x < -20 ? id : null });
+    const patch = t => (t.id === id ? { ...t, _swipeX: x } : t);
+    this.setData({
+      trips:       this.data.trips.map(patch),
+      displayList: (this.data.displayList || []).map(patch),
+      dateGroups:  (this.data.dateGroups || []).map(g => ({ ...g, trips: g.trips.map(patch) })),
+      currentSwipeId: x < -20 ? id : null,
+    });
   },
 
   /* ══════════════════════════════════
@@ -589,7 +595,7 @@ Page({
     return {
       title: '游佳记 · 记录每一次旅行的美好',
       path: '/pages/index/index',
-      imageUrl: ''
+      // 【优化 2026-09-25】去掉空的 imageUrl 字段，避免部分基础库告警（不传则使用默认截图）
     };
   },
 

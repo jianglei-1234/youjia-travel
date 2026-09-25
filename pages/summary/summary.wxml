@@ -61,7 +61,10 @@
       <view class="chart-card">
         <view class="bar-chart">
           <view wx:for="{{monthData}}" wx:key="month" class="bar-col">
-            <view class="bar-total" style="height:{{item.barHeight}}rpx;"></view>
+            <!-- 【优化 2026-09-25】浅色=当月总数，深色=已打卡，直观对比完成情况 -->
+            <view class="bar-total" style="height:{{item.barHeight}}rpx;">
+              <view class="bar-checked" style="height:{{item.checkedHeight}}rpx;"></view>
+            </view>
             <text class="bar-label">{{item.month}}</text>
             <text class="bar-count">{{item.total}}</text>
           </view>
@@ -95,10 +98,10 @@
       <text class="empty-sub">去首页添加行程，开始记录吧！</text>
     </view>
 
-    <!-- 分享按钮 -->
-    <view class="share-area" bindtap="onShareSummary">
+    <!-- 分享按钮（【优化 2026-09-25】改为 open-type="share" 原生按钮，点击直接拉起微信分享面板） -->
+    <button class="share-area" open-type="share">
       <text class="share-btn-text">📤 分享我的旅行年报</text>
-    </view>
+    </button>
 
     <view style="height:80rpx;"></view>
   </scroll-view>

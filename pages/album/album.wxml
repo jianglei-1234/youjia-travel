@@ -43,7 +43,7 @@
             <text class="card-status {{item.checked ? 'checked' : ''}}" wx:if="{{item.checked}}">✓ 已打卡</text>
           </view>
 
-          <!-- 宫格模式 -->
+          <!-- 宫格模式（【优化 2026-09-25】新增长按删除入口，原来只有列表模式能删照片） -->
           <view class="photo-grid" wx:if="{{viewMode === 'grid' && item.photos.length > 0}}">
             <image
               wx:for="{{item.photos}}"
@@ -54,8 +54,11 @@
               src="{{url}}"
               mode="aspectFill"
               bindtap="previewImage"
+              bindlongpress="deletePhoto"
               data-url="{{url}}"
               data-urls="{{item.photos}}"
+              data-tripid="{{item.id}}"
+              data-photoidx="{{pIdx}}"
               lazy-load
             ></image>
           </view>
@@ -86,7 +89,7 @@
 
           <!-- 底部操作 -->
           <view class="card-footer">
-            <text class="footer-hint">点击图片可放大查看</text>
+            <text class="footer-hint">点击放大查看{{viewMode === 'grid' ? ' · 长按可删除' : ''}}</text>
             <text class="footer-view" bindtap="previewAlbum" data-urls="{{item.photos}}" data-current="{{item.photos[0]}}">查看全部 ▶</text>
           </view>
         </view>

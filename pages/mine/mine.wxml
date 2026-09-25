@@ -4,13 +4,23 @@
   <view class="profile-card animate-fadeIn">
     <view class="profile-bg"></view>
     <view class="profile-content">
-      <button class="avatar-btn" open-type="getUserInfo" bindgetuserinfo="onGetUserInfo" wx:if="{{!hasLogin}}">
-        <image class="avatar-img" src="/touxiang.png" mode="aspectFill"></image>
-        <text class="login-hint">点击授权登录</text>
-      </button>
+      <!-- 【优化 2026-09-25】getUserInfo 已废弃，改用 chooseAvatar 头像按钮 + nickname 昵称输入 -->
+      <block wx:if="{{!hasLogin}}">
+        <button class="avatar-btn" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+          <image class="avatar-img" src="{{(userInfo && userInfo.avatarUrl) || '/touxiang.png'}}" mode="aspectFill"></image>
+        </button>
+        <text class="login-hint">点头像换头像，下方填昵称</text>
+        <input
+          class="nickname-input"
+          type="nickname"
+          placeholder="点击填写昵称"
+          value="{{userInfo.nickName}}"
+          bindblur="onNicknameInput"
+        />
+      </block>
       <block wx:else>
-        <image class="avatar-img" src="{{userInfo.avatarUrl}}" mode="aspectFill"></image>
-        <text class="nickname">{{userInfo.nickName}}</text>
+        <image class="avatar-img" src="{{userInfo.avatarUrl || '/touxiang.png'}}" mode="aspectFill"></image>
+        <text class="nickname">{{userInfo.nickName || '旅行者'}}</text>
       </block>
     </view>
   </view>

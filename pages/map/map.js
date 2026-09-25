@@ -51,9 +51,11 @@ function normalizeCity(name) {
   for (let landmark in LANDMARK_CITY) {
     if (name.includes(landmark)) return LANDMARK_CITY[landmark];
   }
-  // 2. 再模糊匹配城市名本身
+  // 2. 再匹配城市名本身
+  // 【优化 2026-09-25】去掉 k.includes(name) 的反向匹配：短地名（如"京"、"哈尔"）
+  // 会被误匹配到"北京"、"哈尔滨"等，只保留 name.includes(k) 的正向匹配
   for (let k in CITY_COORDS) {
-    if (name.includes(k) || k.includes(name)) return k;
+    if (name.includes(k)) return k;
   }
   return name;
 }

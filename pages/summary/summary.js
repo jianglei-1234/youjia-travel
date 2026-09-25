@@ -56,18 +56,30 @@ Page({
         if (t.checked) monthMap[m].checked++;
       }
     });
+    // 【优化 2026-09-25】柱状图区分 总数(浅色) 与 已打卡(深色)，逐月可见完成情况
+    const maxTotal = Math.max(...Object.values(monthMap).map(x => x.total), 1);
     const monthData = Object.entries(monthMap).map(([m, v]) => ({
       month: `${m}月`,
       total: v.total,
       checked: v.checked,
-      barHeight: total > 0 ? Math.max(4, Math.round(v.total / Math.max(...Object.values(monthMap).map(x=>x.total),1) * 160)) : 4,
+      barHeight: v.total > 0 ? Math.max(4, Math.round(v.total / maxTotal * 160)) : 4,
+      checkedHeight: v.checked > 0 ? Math.max(4, Math.round(v.checked / maxTotal * 160)) : 0,
     }));
 
-    // 热门地点 Top5
+    // 热门地点 Top5（【优化 2026-09-25】写法归一化：去掉常见行政区划后缀，
+    // 并把互为前缀的名称合并到较短的写法上，如"故宫/故宫博物院"计为一处）
     const locMap = {};
     trips.forEach(t => {
-      const key = t.location;
-      locMap[key] = (locMap[key]||0) + 1;
+      const key = (t.location || '').trim().replace(/(市|县|区|自治州)$/, '');
+      if (!key) return;
+      const existing = Object.keys(locMap).find(k => k !== key && (k.startsWith(key) || key.startsWith(k)));
+      if (existing) {
+        const short = existing.length <= key.length ? existing : key;
+        locMap[short] = locMap[existing] + 1;
+        if (short !== existing) delete locMap[existing];
+      } else {
+        locMap[key] = (locMap[key] || 0) + 1;
+      }
     });
     const topLocations = Object.entries(locMap)
       .sort((a,b) => b[1]-a[1])
@@ -102,7 +114,13 @@ Page({
     this.computeStats(all, year, this.data.allYears);
   },
 
-  onShareSummary() {
-    wx.showShareMenu({ withShareTicket: true });
+  // 【优化 2026-09-25】原 onShareSummary 只是无效的 showShareMenu 调用，
+  // 改为真正的分享回调：配合页面底部 open-type="share" 按钮和右上角胶囊
+  onShareAppMessage() {
+    const s = this.data.stats || {};
+    return {
+      title: `我的${this.data.selectedYear}年旅行报告：${s.total || 0} 个行程，${s.checked || 0} 次打卡`,
+      path: '/pages/index/index',
+    };
   },
 });

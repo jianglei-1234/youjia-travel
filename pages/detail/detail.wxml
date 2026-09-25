@@ -51,11 +51,15 @@
       </view>
     </view>
 
-    <!-- 操作区 -->
+    <!-- 操作区（【优化 2026-09-25】分享改为 open-type="share" 真正拉起分享；新增编辑入口） -->
     <view class="detail-actions">
-      <view class="action-btn action-share" bindtap="onShareDetail">
+      <button class="action-btn action-share btn-reset" open-type="share">
         <text class="action-icon">📤</text>
         <text class="action-label">分享</text>
+      </button>
+      <view class="action-btn action-edit" bindtap="onEdit">
+        <text class="action-icon">✏️</text>
+        <text class="action-label">编辑</text>
       </view>
       <view class="action-btn action-delete" bindtap="onDelete">
         <text class="action-icon">🗑️</text>

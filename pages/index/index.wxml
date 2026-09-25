@@ -189,11 +189,11 @@
   <text class="fab-icon">＋</text>
 </view>
 
-<!-- ═══════ 新增行程弹层 ═══════ -->
-<view class="overlay {{showAdd ? 'open' : ''}}" bindtap="onCloseAdd">
+<!-- ═══════ 新增/编辑行程弹层（【优化 2026-09-25】原来两块重复弹层合并为一个，用 editId 区分模式） ═══════ -->
+<view class="overlay {{showSheet ? 'open' : ''}}" bindtap="onCloseSheet">
   <view class="sheet" catchtap="noop">
     <view class="sheet-handle"></view>
-    <text class="sheet-title">✈️ 新建行程</text>
+    <text class="sheet-title">{{editId ? '✏️ 编辑行程' : '✈️ 新建行程'}}</text>
 
     <!-- 颜色主题选择 -->
     <view class="color-row">
@@ -226,7 +226,7 @@
         maxlength="30"
         value="{{form.location}}"
         bindinput="onInputLocation"
-        focus="{{showAdd}}"
+        focus="{{showSheet}}"
         cursor-spacing="180"
         adjust-position="{{true}}"
       />
@@ -260,85 +260,13 @@
     </view>
 
     <view class="form-actions">
-      <button class="btn-cancel" bindtap="onCloseAdd">取消</button>
-      <button class="btn-primary" bindtap="onSaveTrip">保存行程</button>
+      <button class="btn-cancel" bindtap="onCloseSheet">取消</button>
+      <button class="btn-primary" bindtap="onSaveSheet">{{editId ? '保存修改' : '保存行程'}}</button>
     </view>
   </view>
 </view>
 
-<!-- ═══════ 编辑行程弹层 ═══════ -->
-<view class="overlay {{showEdit ? 'open' : ''}}" bindtap="onCloseEdit">
-  <view class="sheet" catchtap="noop">
-    <view class="sheet-handle"></view>
-    <text class="sheet-title">✏️ 编辑行程</text>
-
-    <view class="color-row">
-      <text class="field-label">🎨 主题颜色</text>
-      <view class="color-picker">
-        <view
-          wx:for="{{colorThemes}}"
-          wx:key="id"
-          class="color-dot {{form.colorId === item.id ? 'selected' : ''}}"
-          style="background:{{item.bar}};"
-          data-id="{{item.id}}"
-          bindtap="onPickColor"
-        ></view>
-      </view>
-    </view>
-
-    <view class="important-toggle-row" bindtap="onToggleImportant">
-      <text class="field-label">⭐ 标记为重要行程</text>
-      <view class="toggle-switch {{form.isImportant ? 'on' : ''}}">
-        <view class="toggle-thumb"></view>
-      </view>
-    </view>
-
-    <view class="form-field">
-      <text class="field-label">📍 地点名称</text>
-      <input
-        class="field-input"
-        placeholder="例如：故宫、西湖、张家界…"
-        maxlength="30"
-        value="{{form.location}}"
-        bindinput="onInputLocation"
-        cursor-spacing="180"
-        adjust-position="{{true}}"
-      />
-    </view>
-
-    <view class="form-row">
-      <view class="form-field">
-        <text class="field-label">📅 日期</text>
-        <picker mode="date" value="{{form.date}}" bindchange="onPickDate">
-          <view class="field-input picker-input">{{form.date || '请选择日期'}}</view>
-        </picker>
-      </view>
-      <view class="form-field">
-        <text class="field-label">⏰ 时间</text>
-        <picker mode="time" value="{{form.time}}" bindchange="onPickTime">
-          <view class="field-input picker-input">{{form.time || '选择时间'}}</view>
-        </picker>
-      </view>
-    </view>
-
-    <view class="form-field">
-      <text class="field-label">📝 游记备注（支持换行，选填）</text>
-      <textarea
-        class="field-input field-textarea"
-        placeholder="记录特别的想法、美食、路线…"
-        maxlength="500"
-        value="{{form.notes}}"
-        bindinput="onInputNotes"
-        auto-height
-      />
-    </view>
-
-    <view class="form-actions">
-      <button class="btn-cancel" bindtap="onCloseEdit">取消</button>
-      <button class="btn-primary" bindtap="onSaveEdit">保存修改</button>
-    </view>
-  </view>
-</view>
+<!-- 【优化 2026-09-25】原"编辑行程弹层"已删除，与上方"新建行程"共用同一个弹层 -->
 
 <!-- ═══════ 照片选择弹层 ═══════ -->
 <view class="overlay {{showPhoto ? 'open' : ''}}" bindtap="onSkipPhoto">
@@ -369,7 +297,7 @@
 
     <view class="invite-code-box">
       <text class="invite-code-label">你的邀请码</text>
-      <text class="invite-code-text" selectable>{{inviteCode}}</text>
+      <text class="invite-code-text" user-select="{{true}}">{{inviteCode}}</text>
     </view>
 
     <view class="invite-actions">

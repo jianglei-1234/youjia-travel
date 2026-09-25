@@ -55,10 +55,13 @@ Page({
         }
       });
 
-      // 连续打卡天数
+      // 连续打卡天数（【优化 2026-09-25】最近一次打卡必须是今天才计连续，否则视为已中断）
       const dates = [...new Set(checked.map(t => t.date).filter(Boolean))].sort((a, b) => b.localeCompare(a));
+      const now = new Date();
+      const pad2 = n => String(n).padStart(2, '0');
+      const todayStr = `${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(now.getDate())}`;
       let streak = 0;
-      if (dates.length > 0) {
+      if (dates.length > 0 && dates[0] === todayStr) {
         streak = 1;
         for (let i = 1; i < dates.length; i++) {
           const d1 = new Date(dates[i-1]);
@@ -80,9 +83,14 @@ Page({
       if (important >= 10) achievements.push({ icon: '💎', title: '收藏家', desc: '标记10个重要行程', unlocked: true });
       if (provinces.size >= 3) achievements.push({ icon: '🏆', title: '走遍三省', desc: '涉足3个以上省份', unlocked: provinces.size >= 3 });
 
-      // 数据占用
-      const raw = JSON.stringify(trips);
-      const size = raw.length > 1024 ? (raw.length / 1024).toFixed(1) + ' KB' : raw.length + ' B';
+      // 数据占用（【优化 2026-09-25】优先读取官方 storage 实际占用（KB），拿不到再按字符串长度估算）
+      let size;
+      try {
+        size = wx.getStorageInfoSync().currentSize + ' KB';
+      } catch (err) {
+        const raw = JSON.stringify(trips);
+        size = raw.length > 1024 ? (raw.length / 1024).toFixed(1) + ' KB' : raw.length + ' B';
+      }
 
       this.setData({
         stats: {
@@ -103,13 +111,22 @@ Page({
     }
   },
 
-  // 微信登录获取头像昵称
-  onGetUserInfo(e) {
-    if (e.detail.userInfo) {
-      const info = e.detail.userInfo;
-      this.setData({ userInfo: info, hasLogin: true });
-      wx.setStorageSync('userInfo', info);
-    }
+  // 【优化 2026-09-25】open-type="getUserInfo" 已被微信废弃，
+  // 改用新版头像/昵称填写能力：头像 open-type="chooseAvatar"，昵称 input type="nickname"
+  onChooseAvatar(e) {
+    const avatarUrl = e.detail.avatarUrl;
+    if (!avatarUrl) return;
+    const info = { ...(this.data.userInfo || {}), avatarUrl };
+    this.setData({ userInfo: info, hasLogin: true });
+    wx.setStorageSync('userInfo', info);
+  },
+
+  onNicknameInput(e) {
+    const nickName = (e.detail.value || '').trim();
+    if (!nickName) return;
+    const info = { ...(this.data.userInfo || {}), nickName };
+    this.setData({ userInfo: info, hasLogin: true });
+    wx.setStorageSync('userInfo', info);
   },
 
   // 清空所有数据
